@@ -21,6 +21,10 @@ class Appointment {
   addAppointment(appointment) {
     this.appointments = [ ...this.appointments, appointment ];
   }
+
+  deleteAppointment(id) {
+    this.appointments = this.appointments.filter(appointment => appointment.id!== id);
+  }
 }
 
 class UI {
@@ -82,6 +86,16 @@ class UI {
       <span class="font-weight-bolder">Síntomas:</span> ${sint}
       `;
 
+      // Add Button to remove Appointments
+      const removeBtn = document.createElement('button');
+      removeBtn.classList.add('btn', 'btn-danger', 'mr-2');
+      removeBtn.innerHTML = `
+      Eliminar <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      </svg>
+      `;
+      removeBtn.onclick = () => deleteAppointment(id);
+
       // Add Paragraphs to div & insert to HTML
       div.appendChild(petParagraph);
       div.appendChild(ownerParagraph);
@@ -89,6 +103,7 @@ class UI {
       div.appendChild(dateParagraph);
       div.appendChild(timeParagraph);
       div.appendChild(symptomsParagraph);
+      div.appendChild(removeBtn);
       appointmentsContainer.appendChild(div);
     });
   };
@@ -166,4 +181,10 @@ function resetAppointmentObj() {
   appointmentObj.fecha = '';
   appointmentObj.hora = '';
   appointmentObj.sint = '';
+};
+
+function deleteAppointment(id) {
+  appointmentsManagement.deleteAppointment(id);
+  ui.insertAlert('Cita eliminada con éxito');
+  ui.insertAppointments(appointmentsManagement);
 };
