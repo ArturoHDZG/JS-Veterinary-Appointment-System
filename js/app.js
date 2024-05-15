@@ -23,7 +23,15 @@ class Appointment {
   }
 
   deleteAppointment(id) {
-    this.appointments = this.appointments.filter(appointment => appointment.id!== id);
+    this.appointments = this.appointments.filter(
+      appointment => appointment.id !== id
+    );
+  }
+
+  editAppointment(updatedAppointment) {
+    this.appointments = this.appointments.map(
+      appointment => appointment.id === updatedAppointment.id ? updatedAppointment : appointment
+    );
   }
 }
 
@@ -174,6 +182,11 @@ function newAppointment(e) {
   if (editing) {
     // Insert success message
     ui.insertAlert('Cita editada con éxito');
+
+    // Send appointment data to edit
+    appointmentsManagement.editAppointment({ ...appointmentObj });
+
+    // Change text submit button & disable edit mode
     form.querySelector('button[type="submit"]').textContent = 'Crear Cita';
     editing = false;
   } else {
@@ -230,7 +243,7 @@ function editAppointment(appointment) {
   appointmentObj.sint = sint;
   appointmentObj.id = id;
 
-  // Change text submit button
+  // Change text submit button & enable edit mode
   form.querySelector('button[type="submit"]').textContent = 'Guardar Cambios';
   editing = true;
 };
