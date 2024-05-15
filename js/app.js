@@ -1,10 +1,10 @@
 'use strict';
 
 //* Selectors & Variables
-// UI Elements
+// UI elements
 const form = document.querySelector('#nueva-cita');
 const appointmentsContainer = document.querySelector('#citas');
-// Form Inputs
+// Form inputs
 const petInput = document.querySelector('#mascota');
 const ownerInput = document.querySelector('#propietario');
 const phoneInput = document.querySelector('#tel');
@@ -57,7 +57,7 @@ class UI {
       div.classList.add('cita', 'p-3');
       div.dataset.id = id;
 
-      // Inputs Scripting
+      // Inputs scripting
       const petParagraph = document.createElement('H2');
       petParagraph.classList.add('card-title', 'font-weight-bolder');
       petParagraph.textContent = mascota;
@@ -86,17 +86,25 @@ class UI {
       <span class="font-weight-bolder">Síntomas:</span> ${sint}
       `;
 
-      // Add Button to remove Appointments
+      // Add button to remove appointments
       const removeBtn = document.createElement('button');
       removeBtn.classList.add('btn', 'btn-danger', 'mr-2');
       removeBtn.innerHTML = `
       Eliminar <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-      <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-      </svg>
+      <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
       `;
       removeBtn.onclick = () => deleteAppointment(id);
 
-      // Add Paragraphs to div & insert to HTML
+      // Add button to edit appointments
+      const editBtn = document.createElement('button');
+      editBtn.classList.add('btn', 'btn-info');
+      editBtn.innerHTML = `
+      Editar <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
+      `;
+      editBtn.onclick = () => editAppointment(appointment);
+
+      // Add paragraphs into div & insert to HTML
       div.appendChild(petParagraph);
       div.appendChild(ownerParagraph);
       div.appendChild(phoneParagraph);
@@ -104,6 +112,7 @@ class UI {
       div.appendChild(timeParagraph);
       div.appendChild(symptomsParagraph);
       div.appendChild(removeBtn);
+      div.appendChild(editBtn);
       appointmentsContainer.appendChild(div);
     });
   };
@@ -118,6 +127,7 @@ class UI {
 //* Instances
 const ui = new UI();
 const appointmentsManagement = new Appointment();
+let editing;
 
 //* Listeners
 eventListeners();
@@ -151,7 +161,7 @@ function newAppointment(e) {
   e.preventDefault();
   const { mascota, propietario, tel, fecha, hora, sint } = appointmentObj;
 
-  // Data Validation
+  // Data validation
   if (
     mascota === '' || propietario === '' || tel === '' ||
     fecha === '' || hora === '' || sint === ''
@@ -160,17 +170,28 @@ function newAppointment(e) {
     return;
   }
 
-  // Add unique identifier
-  appointmentObj.id = Date.now();
+  // Check if editing
+  if (editing) {
+    // Insert success message
+    ui.insertAlert('Cita editada con éxito');
+    form.querySelector('button[type="submit"]').textContent = 'Crear Cita';
+    editing = false;
+  } else {
+    // Add unique identifier
+    appointmentObj.id = Date.now();
 
-  // Create New Appointment
-  appointmentsManagement.addAppointment({ ...appointmentObj });
+    // Create new appointment
+    appointmentsManagement.addAppointment({ ...appointmentObj });
 
-  // Reset Appointment Object & Form Inputs
+    // Insert success message
+    ui.insertAlert('Cita agregada con éxito');
+  }
+
+  // Reset appointment object & form inputs
   resetAppointmentObj();
   form.reset();
 
-  // Show Appointments in UI
+  // Show appointments in UI
   ui.insertAppointments(appointmentsManagement);
 };
 
@@ -187,4 +208,29 @@ function deleteAppointment(id) {
   appointmentsManagement.deleteAppointment(id);
   ui.insertAlert('Cita eliminada con éxito');
   ui.insertAppointments(appointmentsManagement);
+};
+
+function editAppointment(appointment) {
+  const { mascota, propietario, tel, fecha, hora, sint, id } = appointment;
+
+  // Fill input fields
+  petInput.value = mascota;
+  ownerInput.value = propietario;
+  phoneInput.value = tel;
+  dateInput.value = fecha;
+  timeInput.value = hora;
+  symptomsInput.value = sint;
+
+  // Fill appointment object
+  appointmentObj.mascota = mascota;
+  appointmentObj.propietario = propietario;
+  appointmentObj.tel = tel;
+  appointmentObj.fecha = fecha;
+  appointmentObj.hora = hora;
+  appointmentObj.sint = sint;
+  appointmentObj.id = id;
+
+  // Change text submit button
+  form.querySelector('button[type="submit"]').textContent = 'Guardar Cambios';
+  editing = true;
 };
