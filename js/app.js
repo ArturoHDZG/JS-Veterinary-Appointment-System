@@ -20,8 +20,6 @@ class Appointment {
 
   addAppointment(appointment) {
     this.appointments = [ ...this.appointments, appointment ];
-    console.log(this.appointments);
-    // this.saveAppointments();
   }
 }
 
@@ -43,6 +41,63 @@ class UI {
       alert.remove();
     }, 5000);
   };
+
+  insertAppointments({ appointments }) {
+    this.clearHTML();
+
+    appointments.forEach(appointment => {
+      const {
+        mascota, propietario, tel, fecha, hora, sint, id
+      } = appointment;
+      const div = document.createElement('DIV');
+      div.classList.add('cita', 'p-3');
+      div.dataset.id = id;
+
+      // Inputs Scripting
+      const petParagraph = document.createElement('H2');
+      petParagraph.classList.add('card-title', 'font-weight-bolder');
+      petParagraph.textContent = mascota;
+
+      const ownerParagraph = document.createElement('P');
+      ownerParagraph.innerHTML = `
+      <span class="font-weight-bolder">Propietario:</span> ${propietario}`;
+
+      const phoneParagraph = document.createElement('P');
+      phoneParagraph.innerHTML = `
+      <span class="font-weight-bolder">Teléfono:</span> ${tel}
+      `;
+
+      const dateParagraph = document.createElement('P');
+      dateParagraph.innerHTML = `
+      <span class="font-weight-bolder">Fecha:</span> ${fecha}
+      `;
+
+      const timeParagraph = document.createElement('P');
+      timeParagraph.innerHTML = `
+      <span class="font-weight-bolder">Hora:</span> ${hora}
+      `;
+
+      const symptomsParagraph = document.createElement('P');
+      symptomsParagraph.innerHTML = `
+      <span class="font-weight-bolder">Síntomas:</span> ${sint}
+      `;
+
+      // Add Paragraphs to div & insert to HTML
+      div.appendChild(petParagraph);
+      div.appendChild(ownerParagraph);
+      div.appendChild(phoneParagraph);
+      div.appendChild(dateParagraph);
+      div.appendChild(timeParagraph);
+      div.appendChild(symptomsParagraph);
+      appointmentsContainer.appendChild(div);
+    });
+  };
+
+  clearHTML() {
+    while (appointmentsContainer.firstChild) {
+      appointmentsContainer.removeChild(appointmentsContainer.firstChild);
+    }
+  }
 }
 
 //* Instances
@@ -100,7 +155,8 @@ function newAppointment(e) {
   resetAppointmentObj();
   form.reset();
 
-  // Show Appointment in UI
+  // Show Appointments in UI
+  ui.insertAppointments(appointmentsManagement);
 };
 
 function resetAppointmentObj() {
