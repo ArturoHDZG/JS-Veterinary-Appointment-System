@@ -2,6 +2,8 @@
 
 ## Description
 
+2024-05-23 **PROJECT MIGRATED TO ES6+ MODULES**
+
 This project is a learning exercise aimed at creating an efficient and user-friendly appointment management system for a veterinary clinic. It allows the clinic staff to schedule, update, and keep track of appointments, ensuring smooth operations and improved customer service.
 
 ## Features
