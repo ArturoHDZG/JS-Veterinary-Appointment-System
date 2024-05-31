@@ -2,6 +2,8 @@
 
 ## Description
 
+2024-05-30 **PROJECT INDEXED DB IMPLEMENTATION**
+
 2024-05-23 **PROJECT MIGRATED TO ES6+ MODULES**
 
 This project is a learning exercise aimed at creating an efficient and user-friendly appointment management system for a veterinary clinic. It allows the clinic staff to schedule, update, and keep track of appointments, ensuring smooth operations and improved customer service.
@@ -27,6 +29,6 @@ This project is a learning exercise aimed at creating an efficient and user-frie
 
 ## Live Demo
 
-Check out the live demo of the Weekly Gas Expense Calculator [here](https://arturohdzg.github.io/JS-Veterinary-Appointment-System/).
+Check out the live demo of the Veterinary Appointment Management System [here](https://arturohdzg.github.io/JS-Veterinary-Appointment-System/).
 
 Feel free to explore the code and provide feedback. Happy coding! 🚀
