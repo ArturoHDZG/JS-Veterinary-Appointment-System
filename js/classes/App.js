@@ -1,4 +1,4 @@
-import { newAppointment, appointmentData } from './../functions.js';
+import { newAppointment, appointmentData, initDB } from './../functions.js';
 import {
   form, petInput, ownerInput, phoneInput,
   dateInput, timeInput, symptomsInput
@@ -20,6 +20,7 @@ class App {
    * Initializes the application by setting up event listeners.
    */
   initApp() {
+    initDB();
     // Event listener for form submission. Calls the newAppointment function.
     form.addEventListener('submit', newAppointment);
 

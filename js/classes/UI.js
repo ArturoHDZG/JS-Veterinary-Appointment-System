@@ -35,7 +35,7 @@ class UI {
    * @param {object} data - The data object containing the appointments array.
    * @param {array} data.appointments - The array of appointment objects.
    */
-  insertAppointments({ appointments }) {
+  showAppointments(appointments) {
     this.clearHTML();
 
     appointments.forEach(appointment => {

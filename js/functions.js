@@ -1,5 +1,6 @@
-import Appointment from './classes/appointment.js';
-import UI from './classes/ui.js';
+import Appointment from './classes/Appointment.js';
+import UI from './classes/UI.js';
+import DB from './classes/DB.js';
 import {
   form, petInput, ownerInput, phoneInput,
   dateInput, timeInput, symptomsInput
@@ -8,7 +9,7 @@ import {
 
 //* Variables
 let editing;
-
+const appointments = 'appointments';
 const appointmentObj = {
   mascota: '',
   propietario: '',
@@ -20,6 +21,7 @@ const appointmentObj = {
 
 //* Instances
 const ui = new UI();
+const db = new DB(ui);
 const appointmentsManagement = new Appointment();
 
 //* Functions
@@ -64,10 +66,16 @@ export function newAppointment(e) {
     appointmentObj.id = Date.now();
 
     // Create new appointment
-    appointmentsManagement.addAppointment({...appointmentObj });
+    appointmentsManagement.addAppointment({ ...appointmentObj });
 
-    // Insert success message
-    ui.insertAlert('Cita agregada con éxito');
+    const transaction = db.db.transaction([ appointments ], 'readwrite');
+    const objectStore = transaction.objectStore(appointments);
+    objectStore.add(appointmentObj);
+
+    transaction.oncomplete = () => {
+      // Insert success message
+      ui.insertAlert('Cita agregada con éxito');
+    };
   }
 
   // Reset appointment object & form inputs
@@ -75,7 +83,7 @@ export function newAppointment(e) {
   form.reset();
 
   // Show appointments in UI
-  ui.insertAppointments(appointmentsManagement);
+  ui.showAppointments();
 }
 
 /**
@@ -97,7 +105,7 @@ export function resetAppointmentObj() {
 export function deleteAppointment(id) {
   appointmentsManagement.deleteAppointment(id);
   ui.insertAlert('Cita eliminada con éxito');
-  ui.insertAppointments(appointmentsManagement);
+  ui.showAppointments();
 }
 
 /**
@@ -127,4 +135,8 @@ export function editAppointment(appointment) {
   // Change text submit button & enable edit mode
   form.querySelector('button[type="submit"]').textContent = 'Guardar Cambios';
   editing = true;
+}
+
+export function initDB() {
+  db.createDB(appointments);
 }
