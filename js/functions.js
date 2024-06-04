@@ -1,3 +1,8 @@
+/**
+ * Appointment management system.
+ * @module Appointment
+ */
+
 import Appointment from './classes/Appointment.js';
 import UI from './classes/UI.js';
 import DB from './classes/DB.js';
@@ -6,10 +11,19 @@ import {
   dateInput, timeInput, symptomsInput
 } from './selectors.js';
 
-
-//* Variables
+/**
+ * @type {boolean} - Flag to indicate if the form is in editing mode.
+ */
 let editing;
+
+/**
+ * @type {string} - Name of the object store for appointments in IndexedDB.
+ */
 const appointments = 'appointments';
+
+/**
+ * @type {Object} - Object to store appointment data.
+ */
 const appointmentObj = {
   mascota: '',
   propietario: '',
@@ -19,12 +33,21 @@ const appointmentObj = {
   sint: ''
 };
 
-//* Instances
+/**
+ * @type {UI} - Instance of the UI class.
+ */
 const ui = new UI();
+
+/**
+ * @type {DB} - Instance of the DB class.
+ */
 const db = new DB(ui);
+
+/**
+ * @type {Appointment} - Instance of the Appointment class.
+ */
 const appointmentsManagement = new Appointment();
 
-//* Functions
 /**
  * Updates the appointment object with the input values from the form.
  * @param {Event} e - The event object representing the form input change.
@@ -52,15 +75,21 @@ export function newAppointment(e) {
 
   // Check if editing
   if (editing) {
-    // Insert success message
-    ui.insertAlert('Cita editada con éxito');
-
     // Send appointment data to edit
-    appointmentsManagement.editAppointment({...appointmentObj });
+    appointmentsManagement.editAppointment({ ...appointmentObj });
 
-    // Change text submit button & disable edit mode
-    form.querySelector('button[type="submit"]').textContent = 'Crear Cita';
-    editing = false;
+    const transaction = db.db.transaction([ appointments ], 'eadwrite');
+    const objectStore = transaction.objectStore(appointments);
+    objectStore.put(appointmentObj);
+
+    transaction.oncomplete = () => {
+      // Insert success message
+      ui.insertAlert('Cita editada con éxito');
+
+      // Change text submit button & disable edit mode
+      form.querySelector('button[type="submit"]').textContent = 'Crear Cita';
+      editing = false;
+    };
   } else {
     // Add unique identifier
     appointmentObj.id = Date.now();
@@ -68,7 +97,7 @@ export function newAppointment(e) {
     // Create new appointment
     appointmentsManagement.addAppointment({ ...appointmentObj });
 
-    const transaction = db.db.transaction([ appointments ], 'readwrite');
+    const transaction = db.db.transaction([ appointments ], 'eadwrite');
     const objectStore = transaction.objectStore(appointments);
     objectStore.add(appointmentObj);
 
@@ -82,8 +111,9 @@ export function newAppointment(e) {
   resetAppointmentObj();
   form.reset();
 
-  // Show appointments in UI
-  ui.showAppointments();
+  db.getAllAppointments().then(fetchedAppointments => {
+    ui.showAppointments(fetchedAppointments);
+  });
 }
 
 /**
@@ -103,9 +133,17 @@ export function resetAppointmentObj() {
  * @param {number} id - The unique identifier of the appointment to delete.
  */
 export function deleteAppointment(id) {
-  appointmentsManagement.deleteAppointment(id);
-  ui.insertAlert('Cita eliminada con éxito');
-  ui.showAppointments();
+  const transaction = db.db.transaction([ appointments ], 'eadwrite');
+  const objectStore = transaction.objectStore(appointments);
+  objectStore.delete(id);
+
+  transaction.oncomplete = () => {
+    // Insert success message
+    ui.insertAlert('Cita eliminada con éxito');
+    db.getAllAppointments().then(fetchedAppointments => {
+      ui.showAppointments(fetchedAppointments);
+    });
+  };
 }
 
 /**
@@ -137,6 +175,9 @@ export function editAppointment(appointment) {
   editing = true;
 }
 
+/**
+ * Initializes the IndexedDB database for storing appointments.
+ */
 export function initDB() {
   db.createDB(appointments);
 }
